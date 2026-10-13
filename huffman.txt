@@ -1,0 +1,20 @@
+aaabbc normally takes 6 bytes
+
+assign each character variable length code, most frequent has shortest
+
+ie:
+    a: 1
+    b: 01
+    c: 10
+
+we can reduce aaabbc to 111010110
+
+generated using binary tree
+
+steps:
+    1. read text and determine frequency of each character
+    2. build binary tree from frequencies
+    3. generate prefix code table from tree
+    4. encode text using code table
+    5. encode tree - must include in output file to decode
+    6. write encoded tree and text to output
