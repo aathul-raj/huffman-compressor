@@ -7,3 +7,5 @@
 4. clean up decode function
 
 5. add cli functionality
+
+6. clean up files / organize structure
