@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "huff_tree.h"
-// #define BUFSZ 4
 
 uint32_t bytes_to_int(unsigned char *bytes, int num_bytes){
     uint32_t val = 0;
@@ -54,6 +53,7 @@ void get_next_buffer(FILE* input_file, char *out){
 }
 
 int iterate_bit_buffers(FILE* input_file, long byte_size, int file_size, Node* root_node){
+    // byte size is size of encoded file - header (remaining size of bytes to decode)
     FILE *output_fptr;
     output_fptr = fopen("output.txt", "wb");
 
@@ -74,6 +74,9 @@ int iterate_bit_buffers(FILE* input_file, long byte_size, int file_size, Node* r
         }
         
     }
+
+    // the above code block reads all the data of the file in as an array of buffers
+
     printf("\n");
 
     int left_buffer = 0;
@@ -102,6 +105,9 @@ int iterate_bit_buffers(FILE* input_file, long byte_size, int file_size, Node* r
 
             char el = get_char(root_node, code);
 
+            // the below code should be able to be optimized
+            // the main challenge comes if r & l = 7 and a code is found
+            // in that case, right_buffer++ and r = 0, and l should be 0 and left_buffer should equal right buffer
             if (el) {
                 fwrite(&el, sizeof(unsigned char), 1, output_fptr);
                 write_count++;
