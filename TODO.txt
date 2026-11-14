@@ -1,0 +1,9 @@
+1. seg fault on empty input and fails on 1 char input
+
+2. add file size functionality to analyze compression amount
+
+3. valgrind memory cleanup
+
+4. clean up decode function
+
+5. add cli functionality

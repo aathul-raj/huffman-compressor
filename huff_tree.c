@@ -74,7 +74,6 @@ void assign_code(Node* node, char* code, int depth){
         code[depth] = '\0';
         node->code = malloc(depth + 1);
         memcpy(node->code, code, depth + 1);
-        printf("%c has code : %s\n", node->el, code);
         return;
     }
 
@@ -136,6 +135,35 @@ char* get_code(Node* node, char target_el){
     }
 
     return NULL;
+}
+
+char get_char(Node* node, char* code){
+    if (node == NULL) {
+        return '\0';
+    }
+
+    if (code[0] == '\0') {
+        return node->el;
+    }
+
+    size_t length = strlen(code);
+
+    char code_substring[length];
+
+    strncpy(code_substring, code + 1, length - 1);
+    code_substring[length - 1] = '\0';
+
+    if (code[0] == '0') {
+        char result = get_char(node->left, code_substring);
+        if (result) return result;
+    }
+
+    if (code[0] == '1') {
+        char result = get_char(node->right, code_substring);
+        if (result) return result;
+    }
+
+    return '\0';
 }
 
 void print_tree(Node* node, int depth){

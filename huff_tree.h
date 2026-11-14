@@ -21,6 +21,8 @@
 
     char* get_code(Node* node, char target_el);
 
+    char get_char(Node* node, char* code);
+
     void free_tree(Node* node);
 
     #endif
