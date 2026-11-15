@@ -172,6 +172,18 @@ int decode(char *file){
         fread(char_code, sizeof *char_code, char_code_readsz, input_file);
         unsigned char_code_val = bytes_to_int(char_code, 1);
 
+        if (non_zero_counts_val == 1){
+            FILE *output_fptr;
+            output_fptr = fopen("output.txt", "wb");
+
+            fwrite(&char_code_val, sizeof(unsigned char), 1, output_fptr);
+            
+            printf("closing....\n");
+
+            fclose(input_file);
+            return 0;
+        }
+
         // read freq
 
         unsigned char freq[4] = {0};

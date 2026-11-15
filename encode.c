@@ -33,7 +33,6 @@ int encode(Node* root_node, int counts[256], char *argv[], long size) {
     }
 
     fwrite(&non_zero_count, sizeof(int32_t), 1, output_fptr); // metadata
-
     for (int i = 0; i < 256; i++) {
         if (counts[i] > 0) {
             uint8_t char_code = (uint8_t)i;

@@ -90,7 +90,7 @@ void assign_code(Node* node, char* code, int depth){
 
 Node* build_tree(int *counts){
     NodeList nodelist = init_node_list(counts);
-    
+
     while (nodelist.count > 1) {
         // loop through nodelist and get 2 smallest mins
         // remove (they will each sit at last 2 positions of nodelist)
@@ -111,7 +111,6 @@ Node* build_tree(int *counts){
     Node* root = nodelist.nodes[0];
     assign_code(root, malloc(256), 0);
     free(nodelist.nodes);
-
     return root;
 }
 

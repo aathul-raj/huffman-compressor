@@ -18,6 +18,11 @@ int main(int argc, char *argv[]){
     long size = ftell(file);
     rewind(file);
 
+    if (size == 0){
+        printf("cannot encode an empty file! exiting...\n");
+        return 0;
+    }
+
     char *counts_buffer = malloc(size);
     fread(counts_buffer, 1, size, file);
     fclose(file);
@@ -27,7 +32,6 @@ int main(int argc, char *argv[]){
     free(counts_buffer);
 
     Node* root_node = build_tree(counts);
-
     int encode_result_error = encode(root_node, counts, argv, size);
 
     if (encode_result_error) {
