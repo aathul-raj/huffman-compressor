@@ -1,6 +1,21 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 #include "huff_tree.h"
+
+void build_decode_filename(const char* filename, char* output_buffer, size_t buffer_size) {
+    const char* encoded_sig = "-shrinky-encoded.txt";
+    const char* decoded_sig = "-shrinky-decoded.txt";
+
+    size_t len = strlen(filename);
+    size_t enc_len = strlen(encoded_sig);
+
+    if (len >= enc_len && strcmp(filename + len - enc_len, encoded_sig) == 0) {
+        len -= enc_len;
+    }
+
+    snprintf(output_buffer, buffer_size, "%.*s%s", (int)len, filename, decoded_sig);
+}
 
 uint32_t bytes_to_int(unsigned char *bytes, int num_bytes){
     uint32_t val = 0;
@@ -52,10 +67,13 @@ void get_next_buffer(FILE* input_file, char *out){
     convert_byte_to_bits(compressed_byte[0], out);
 }
 
-int iterate_bit_buffers(FILE* input_file, long byte_size, int file_size, Node* root_node){
+int iterate_bit_buffers(FILE* input_file, long byte_size, int file_size, Node* root_node, char* output_name, int verbose){
     // byte size is size of encoded file - header (remaining size of bytes to decode)
+    if (verbose) {
+        printf("meta data decoded! iterating through encoding data buffers...\n");
+    }
     FILE *output_fptr;
-    output_fptr = fopen("output.txt", "wb");
+    output_fptr = fopen(output_name, "wb");
 
     if (output_fptr == NULL){
         printf("error opening file!\n");
@@ -107,6 +125,10 @@ int iterate_bit_buffers(FILE* input_file, long byte_size, int file_size, Node* r
                 } else {
                     left_buffer = right_buffer;
                 }
+
+                if (verbose) {
+                    printf("char decoded and written! specifically: %c\n", el);
+                }
             }
 
             if (right < 7) {
@@ -120,7 +142,6 @@ int iterate_bit_buffers(FILE* input_file, long byte_size, int file_size, Node* r
             }
 
             if (write_count == file_size) {
-                printf("succesfully decoded entire file!\n");
                 return 1;
             }
         }
@@ -129,7 +150,7 @@ int iterate_bit_buffers(FILE* input_file, long byte_size, int file_size, Node* r
     return 0;
 }
 
-int decode(char *file){
+int decode(char *file, int verbose){
 
     FILE *input_file = fopen(file, "rb");
 
@@ -137,7 +158,8 @@ int decode(char *file){
     long encoded_file_size = ftell(input_file);
     rewind(input_file);
 
-    printf("encoded file size: %ld...\n", encoded_file_size);
+    char output_name[256];
+    build_decode_filename(file, output_name, sizeof(output_name));
 
     int counts[256] = {};
 
@@ -148,6 +170,11 @@ int decode(char *file){
 
     unsigned non_zero_counts_val = bytes_to_int(non_zero_counts, 4);
 
+    if (verbose) {
+        printf("decoding header...\n");
+        printf("non_zero_counts_val: %d\n", non_zero_counts_val);
+    }
+
     for (int i = 0; i < non_zero_counts_val; i++) {
         // read char code
         unsigned char char_code[1] = {0};
@@ -156,13 +183,16 @@ int decode(char *file){
         fread(char_code, sizeof *char_code, char_code_readsz, input_file);
         unsigned char_code_val = bytes_to_int(char_code, 1);
 
+        if (verbose){
+            printf("decoded char: %c || ", char_code_val);
+        }
+
         if (non_zero_counts_val == 1){
             FILE *output_fptr;
-            output_fptr = fopen("output.txt", "wb");
+            output_fptr = fopen(output_name, "wb");
 
             fwrite(&char_code_val, sizeof(unsigned char), 1, output_fptr);
-            
-            printf("closing....\n");
+            fclose(output_fptr);
 
             fclose(input_file);
             return 0;
@@ -177,10 +207,19 @@ int decode(char *file){
         unsigned freq_val = bytes_to_int(freq, 4);
 
         counts[char_code_val] = freq_val;
+
+        if(verbose) {
+            printf("freq: %d\n", freq_val);
+        }
     }
 
     Node* root_node = build_tree(counts);
 
+    if (verbose){
+        printf("\ndecoded huffman tree...\n");
+        print_tree(root_node, 0);
+        printf("\n");
+    }
     // file size
 
     unsigned char file_size[4] = {0};
@@ -189,12 +228,19 @@ int decode(char *file){
     fread(file_size, sizeof *file_size, file_size_readsz, input_file);
     unsigned file_size_val = bytes_to_int(file_size, 4);
 
+    if (verbose) {
+        printf("file size: %d\n", file_size_val);
+    }
+
     long byte_size = encoded_file_size - (sizeof(non_zero_counts_val) + (5 * non_zero_counts_val) + sizeof(file_size_val));
 
-    iterate_bit_buffers(input_file, byte_size, file_size_val, root_node);
+    iterate_bit_buffers(input_file, byte_size, file_size_val, root_node, output_name, verbose);
+
+    if (verbose) {
+        printf("decoding complete! exiting...\n");
+    }
 
     free_tree(root_node);
-    printf("closing....\n");
 
     fclose(input_file);
 

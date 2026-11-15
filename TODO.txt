@@ -4,12 +4,15 @@
 
 3. valgrind memory cleanup / mostly DONE
 
-4. add cli functionality
+4. add cli functionality / DONE
     - flags for logging
     - encode mode
     - decode mode
     - file size reader
 
 5. clean up files / organize structure
+    - makefile
+    - file structure
+    - exe
 
 6. clean up decode function

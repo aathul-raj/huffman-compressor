@@ -1,53 +1,54 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
 #include <string.h>
-#include "charcount.h"
-#include "printcounts.h"
-#include "huff_tree.h"
 #include "encode.h"
 #include "decode.h"
 
-int main(int argc, char *argv[]){
-    
-    FILE *file;
+int encode_path(char* filename, int verbose) {
+    int encode_result_error = encode(filename, verbose);
 
-    file = fopen(argv[1], "r");
-
-    fseek(file, 0, SEEK_END);
-    long size = ftell(file);
-    rewind(file);
-
-    if (size == 0){
-        printf("cannot encode an empty file! exiting...\n");
+    if (encode_result_error == 2){ // empty file, graceful exit
         return 0;
-    }
-
-    printf("original file size: %ld...\n", size);
-
-    char *counts_buffer = malloc(size);
-    fread(counts_buffer, 1, size, file);
-    fclose(file);
-
-    int counts[256] = {};
-    count_chars(counts_buffer, size, counts);
-    free(counts_buffer);
-
-    Node* root_node = build_tree(counts);
-    int encode_result_error = encode(root_node, counts, argv, size);
-
-    free_tree(root_node);
-
-    if (encode_result_error) {
+    } else if (encode_result_error) {
         printf("error encoding file!\n");
         return 1;
     } else {
-        printf("succesfully encoded file!\n");
+        return 0;
+    }
+}
+
+void file_size(char* filename) {
+    FILE *file;
+
+    file = fopen(filename, "r");
+
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file);
+
+    printf("file size of %s : %ld (bytes)\n", filename, file_size);
+}
+
+
+int main(int argc, char *argv[]){
+    int verbose = 0;
+    int encode = 1;
+    char* filename = argv[1]; // we expect the first argument to be the file
+
+    for (int i = 1; i < argc; i++) {
+        char* arg = argv[i];
+        if (strcmp(arg, "-v") == 0) {
+            verbose = 1;
+        } else if (strcmp(arg, "-s") == 0) {
+            file_size(filename);
+            return 0;
+        } else if (strcmp(arg, "unshrink") == 0) {
+            decode(filename, verbose);
+            encode = 0;
+        }
     }
 
-    decode("output.txt");
-
-    printf("decoded file size: %ld...\n", size);
+    if (encode) {
+        encode_path(filename, verbose);
+    }
     
     return 0;
 }
