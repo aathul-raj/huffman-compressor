@@ -23,6 +23,8 @@ int main(int argc, char *argv[]){
         return 0;
     }
 
+    printf("original file size: %ld...\n", size);
+
     char *counts_buffer = malloc(size);
     fread(counts_buffer, 1, size, file);
     fclose(file);
@@ -34,6 +36,8 @@ int main(int argc, char *argv[]){
     Node* root_node = build_tree(counts);
     int encode_result_error = encode(root_node, counts, argv, size);
 
+    free_tree(root_node);
+
     if (encode_result_error) {
         printf("error encoding file!\n");
         return 1;
@@ -43,7 +47,7 @@ int main(int argc, char *argv[]){
 
     decode("output.txt");
 
-    free_tree(root_node);
+    printf("decoded file size: %ld...\n", size);
     
     return 0;
 }

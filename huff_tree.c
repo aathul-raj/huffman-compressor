@@ -103,13 +103,16 @@ Node* build_tree(int *counts){
         parent->left = min_left;
         parent->right = min_right;
         parent->freq = min_left->freq + min_right->freq;
+        parent->code = NULL;
 
         nodelist.nodes[nodelist.count] = parent;
         nodelist.count++;
     }
 
     Node* root = nodelist.nodes[0];
-    assign_code(root, malloc(256), 0);
+    char* code_size = malloc(256);
+    assign_code(root, code_size, 0);
+    free(code_size);
     free(nodelist.nodes);
     return root;
 }
@@ -191,6 +194,8 @@ void free_tree(Node* node){
     if (!node) return;
     free_tree(node->left);
     free_tree(node->right);
-    free(node->code);
+    if (node->code) {
+        free(node->code);
+    }
     free(node);
 }

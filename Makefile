@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -std=c11
+CFLAGS = -Wall -g -std=c11
 
 charcount: main.c charcount.c printcounts.c huff_tree.c encode.c decode.c
 	$(CC) $(CFLAGS) -o charcount main.c charcount.c printcounts.c huff_tree.c encode.c decode.c

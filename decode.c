@@ -70,14 +70,11 @@ int iterate_bit_buffers(FILE* input_file, long byte_size, int file_size, Node* r
 
         for (int j = 0; j < 8; j++){
             buffers[i][j] = buffer[j];
-            printf("%c", buffers[i][j]);
         }
         
     }
 
     // the above code block reads all the data of the file in as an array of buffers
-
-    printf("\n");
 
     int left_buffer = 0;
 
@@ -93,15 +90,9 @@ int iterate_bit_buffers(FILE* input_file, long byte_size, int file_size, Node* r
         // if file size not reached yet, set l = r, r++ if r < 7 else r = 0
 
         for (int i = 0; i < 8; i++){
-            printf("right_buffer: %d\n", right_buffer);
-            printf("left_buffer: %d\n", left_buffer);
-            printf("left: %d\n", left);
-            printf("right: %d\n", right);
             char code[256 + 1] = {0};
 
             extract_bits(buffers, left_buffer, right_buffer, left, right, code); // code is now the code
-
-            printf("current CODE: %s\n", code);
 
             char el = get_char(root_node, code);
 
@@ -132,28 +123,21 @@ int iterate_bit_buffers(FILE* input_file, long byte_size, int file_size, Node* r
                 printf("succesfully decoded entire file!\n");
                 return 1;
             }
-            printf("onto the next bit...\n");
         }
-        printf("!!!!! onto the next buffer...\n");
     }
 
     return 0;
 }
 
 int decode(char *file){
-    FILE *decoded_file;
-    decoded_file = fopen("decoded.txt", "wb");
-
-    if (decoded_file == NULL) {
-        printf("error opening file...\n");
-        return 1;
-    }
 
     FILE *input_file = fopen(file, "rb");
 
     fseek(input_file, 0, SEEK_END);
     long encoded_file_size = ftell(input_file);
     rewind(input_file);
+
+    printf("encoded file size: %ld...\n", encoded_file_size);
 
     int counts[256] = {};
 
@@ -209,6 +193,7 @@ int decode(char *file){
 
     iterate_bit_buffers(input_file, byte_size, file_size_val, root_node);
 
+    free_tree(root_node);
     printf("closing....\n");
 
     fclose(input_file);

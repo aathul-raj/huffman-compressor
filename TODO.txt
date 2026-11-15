@@ -1,11 +1,15 @@
 1. seg fault on empty input and fails on 1 char input / DONE
 
-2. add file size functionality to analyze compression amount
+2. add file size functionality to analyze compression amount / DONE
 
-3. valgrind memory cleanup
+3. valgrind memory cleanup / mostly DONE
 
-4. clean up decode function
+4. add cli functionality
+    - flags for logging
+    - encode mode
+    - decode mode
+    - file size reader
 
-5. add cli functionality
+5. clean up files / organize structure
 
-6. clean up files / organize structure
+6. clean up decode function
